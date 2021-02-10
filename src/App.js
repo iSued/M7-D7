@@ -42,6 +42,7 @@ function App() {
       setList([...list]);
     });
     socket.on("chatmessage", (msg) => {
+      console.log(msg);
       setMessages((messages) => messages.concat(msg));
     });
     console.log("this are the fucking messages", messages);
@@ -49,7 +50,7 @@ function App() {
     socket.on("connect", () => console.log("connected to socket"));
 
     return () => socket.removeAllListeners();
-  }, [messages]);
+  }, []);
 
   const handleMessage = (e) => {
     setMessage(e.currentTarget.value);
@@ -92,18 +93,14 @@ function App() {
           <h1>{receiver}</h1>
           <div className="App">
             <ul id="messages">
-              {messages
-                .filter((user) => {
-                  return user.from == receiver;
-                })
-                .map((msg, i) => (
-                  <li
-                    key={i}
-                    className={msg.from === username ? "ownMessage" : "message"}
-                  >
-                    <strong>{msg.from}</strong> {msg.msg}
-                  </li>
-                ))}
+              {messages.map((msg, i) => (
+                <li
+                  key={i}
+                  className={msg.from === username ? "ownMessage" : "message"}
+                >
+                  <strong>{msg.from}</strong> {msg.msg}
+                </li>
+              ))}
             </ul>
             <form id="chat" onSubmit={sendMessage}>
               <input
