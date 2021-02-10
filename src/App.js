@@ -25,16 +25,6 @@ function App() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [showModal, setShowModal] = useState(true);
-  useEffect(() => {
-    const handleFetch = async () => {
-      let response = await fetch(
-        `https://striveschool-api.herokuapp.com/api/messages/${username}`
-      );
-      let data = await response.json();
-      console.log(data);
-    };
-    handleFetch();
-  }, [username]);
 
   useEffect(() => {
     socket.on("connect", () => console.log("connected to socket"));
@@ -59,10 +49,17 @@ function App() {
   const sendMessage = (e) => {
     e.preventDefault();
     if (message !== "") {
-      socket.emit("chatmessage", {
-        to: receiver,
         text: message,
-      });
+      socket.emit(
+        "chatmessage",
+        {
+          to: receiver,
+          text: message,
+        },
+        setMessages((messages) =>
+          messages.concat({ from: username, to: receiver, msg: message })
+        )
+      );
 
       setMessage("");
     }
@@ -93,14 +90,21 @@ function App() {
           <h1>{receiver}</h1>
           <div className="App">
             <ul id="messages">
-              {messages.map((msg, i) => (
-                <li
-                  key={i}
-                  className={msg.from === username ? "ownMessage" : "message"}
-                >
-                  <strong>{msg.from}</strong> {msg.msg}
-                </li>
-              ))}
+              {messages
+                .filter((user) => {
+                  return (
+                    user.from === receiver ||
+                    (user.from === username && user.to === receiver)
+                  );
+                })
+                .map((msg, i) => (
+                  <li
+                    key={i}
+                    className={msg.from === username ? "ownMessage" : "message"}
+                  >
+                    <strong>{msg.from}</strong> {msg.msg}
+                  </li>
+                ))}
             </ul>
             <form id="chat" onSubmit={sendMessage}>
               <input
