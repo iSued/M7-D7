@@ -42,6 +42,14 @@ function App() {
     return () => socket.removeAllListeners();
   }, []);
 
+  const fetchAllConversations = async () => {
+    let response = await fetch(
+      `https://striveschool-api.herokuapp.com/api/messages/${username}`
+    );
+    let data = await response.json();
+    console.log("this is all shit messages", data.length);
+  };
+
   const handleMessage = (e) => {
     setMessage(e.currentTarget.value);
   };
@@ -49,7 +57,6 @@ function App() {
   const sendMessage = (e) => {
     e.preventDefault();
     if (message !== "") {
-        text: message,
       socket.emit(
         "chatmessage",
         {
@@ -74,6 +81,7 @@ function App() {
     <>
       <Row>
         <Col className="col-3">
+          <button onClick={fetchAllConversations}>fetch</button>
           <ul>
             {list
               .filter((user) => {
